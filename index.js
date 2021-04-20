@@ -40,6 +40,7 @@ const initialPrompts = async () => {
       removeEmployee();
       break;
     case 'Update employee role':
+      updateRole();
       break;
     case 'Update employee manager':
       break;
@@ -207,6 +208,48 @@ async function removeEmployee() {
 
   initialPrompts();
 
+}
+
+async function updateRole() {
+
+  // get employee list
+  // DRY this up! it's the same as Remove Employee
+  const response = await connection.query(`SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employee;`);
+  const employeeArray = response.map(employee => {
+    return {name : employee.name, value : employee.id};
+  })
+
+  const empToUpdate = await inquirer.prompt([
+    {
+      name : 'employeeId',
+      message : 'Choose an employee to update: ',
+      type : 'list',
+      choices : employeeArray
+    }
+  ])
+
+  // get role list
+  const roles = await connection.query(`SELECT id, title FROM role;`);
+  const roleArray = roles.map(role => {
+    return {name : role.title, value : role.id};
+  })
+
+  const newRole = await inquirer.prompt([
+    {
+      name : 'newRoleId',
+      message : `Choose a new role for employee ${empToUpdate.employeeId}: `,
+      type : 'list',
+      choices : roleArray
+    }
+  ])
+
+  // update role
+  await connection.query(
+    `UPDATE employee SET role_id = ? WHERE id = ?;`, 
+    [newRole.newRoleId, empToUpdate.employeeId]
+  );
+
+  initialPrompts();
 }
 
 
