@@ -43,6 +43,7 @@ const initialPrompts = async () => {
       updateRole();
       break;
     case 'Update employee manager':
+      updateManager();
       break;
   }
 
@@ -253,7 +254,35 @@ async function updateRole() {
   initialPrompts();
 }
 
+async function updateManager() {
 
+  //get employees
+  const employeeArray = await getEmployeeNames();
+
+  //get managers
+  const managerArray = await getManagers();
+
+  const response = await inquirer.prompt([
+    {
+      name : 'selectedEmployee',
+      message : `Which employee's manager would you like to update? `,
+      type : 'list',
+      choices : employeeArray
+    },
+    {
+      name : 'selectedManager',
+      message : 'Which manager are you assigning? ',
+      type : 'list',
+      choices : managerArray
+    }
+  ])
+
+  await connection.query(`UPDATE employee SET manager_id = ? WHERE id = ?`, [response.selectedManager, response.selectedEmployee]);
+
+  initialPrompts();
+
+
+}
 
 
 initialPrompts();
