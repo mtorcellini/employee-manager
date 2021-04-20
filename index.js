@@ -37,6 +37,7 @@ const initialPrompts = async () => {
       addEmployee();
       break;
     case 'Remove employee':
+      removeEmployee();
       break;
     case 'Update employee role':
       break;
@@ -178,6 +179,31 @@ async function addEmployee() {
   const queryString = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);`;
 
   await connection.query(queryString, [newEmployee.firstName, newEmployee.lastName, newEmployee.roleID, newEmployee.manager]);
+
+  initialPrompts();
+
+}
+
+async function removeEmployee() {
+
+  // get list of employees
+  const response = await connection.query(`SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employee;`);
+  const employeeArray = response.map(employee => {
+    return {name : employee.name, value : employee.id};
+  })
+
+  const employeeToRemove = await inquirer.prompt([
+    {
+      name : 'id',
+      message : 'Choose an employee to REMOVE: ',
+      type : 'list',
+      choices : employeeArray
+    }
+  ])
+
+  const idToRemove = employeeToRemove.id;
+
+  await connection.query(`DELETE from employee WHERE id = ?`, idToRemove);
 
   initialPrompts();
 
