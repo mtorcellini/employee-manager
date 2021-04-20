@@ -34,6 +34,7 @@ const initialPrompts = async () => {
       getAllByMan();
       break;
     case 'Add employee':
+      addEmployee();
       break;
     case 'Remove employee':
       break;
@@ -128,5 +129,61 @@ async function getAllByMan() {
   initialPrompts();
 
 }
+
+async function addEmployee() {
+
+  // get list of roles
+  const roles = await connection.query(`SELECT id, title from role`);
+  const roleArray = roles.map(role => {
+    return {name : role.title, value : role.id};
+  });
+
+  // get list of managers (THIS NEEDS TO BE DRIED)
+  // select all employees who don't have a manager
+  const managers = await connection.query(`SELECT id, CONCAT(first_name, ' ', last_name) AS name from employee WHERE manager_id IS NULL`);
+
+  // get an array of manager objects with name and id properties
+  // set to name and value for use with inquirer
+  const managerArray = managers.map(manager => {
+    return {name : manager.name, value : manager.id};
+  })
+
+
+  // get details for new employee
+  const newEmployee = await inquirer.prompt([
+    {
+      name : 'firstName',
+      message : 'First name :'
+    },
+    {
+      name : 'lastName',
+      message : 'Last name :',
+    },
+    {
+      name : 'roleID',
+      message : 'Select a role for the employee',
+      type : 'list',
+      choices : roleArray
+    },
+    {
+      name : 'manager',
+      message : 'Select a manager: ',
+      type : 'list',
+      choices : managerArray
+    }
+  ])
+
+  // add new employee to database
+
+  const queryString = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);`;
+
+  await connection.query(queryString, [newEmployee.firstName, newEmployee.lastName, newEmployee.roleID, newEmployee.manager]);
+
+  initialPrompts();
+
+}
+
+
+
 
 initialPrompts();
