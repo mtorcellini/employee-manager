@@ -97,23 +97,31 @@ async function getAllByDept() {
 
 }
 
+async function getManagers() {
+
+    // select all employees who don't have a manager
+    const managers = await connection.query(`SELECT id, CONCAT(first_name, ' ', last_name) AS name from employee WHERE manager_id IS NULL`);
+
+    // get an array of manager objects with name and id properties
+    // set to name and value for use with inquirer
+    const managersArray = managers.map(manager => {
+      return {name : manager.name, value : manager.id};
+    })
+
+    return managersArray;
+
+}
+
 async function getAllByMan() {
 
-  // select all employees who don't have a manager
-  const managers = await connection.query(`SELECT id, CONCAT(first_name, ' ', last_name) AS name from employee WHERE manager_id IS NULL`);
-
-  // get an array of manager objects with name and id properties
-  // set to name and value for use with inquirer
-  const managersArray = managers.map(manager => {
-    return {name : manager.name, value : manager.id};
-  })
+  const managerArray = await getManagers();
 
   const response = await inquirer.prompt([
     {
       name : 'selectedManId',
       type: 'list',
       message : 'Select manager',
-      choices : managersArray
+      choices : managerArray
     }
   ])
 
@@ -140,16 +148,7 @@ async function addEmployee() {
     return {name : role.title, value : role.id};
   });
 
-  // get list of managers (THIS NEEDS TO BE DRIED)
-  // select all employees who don't have a manager
-  const managers = await connection.query(`SELECT id, CONCAT(first_name, ' ', last_name) AS name from employee WHERE manager_id IS NULL`);
-
-  // get an array of manager objects with name and id properties
-  // set to name and value for use with inquirer
-  const managerArray = managers.map(manager => {
-    return {name : manager.name, value : manager.id};
-  })
-
+  const managerArray = await getManagers();
 
   // get details for new employee
   const newEmployee = await inquirer.prompt([
@@ -185,13 +184,20 @@ async function addEmployee() {
 
 }
 
-async function removeEmployee() {
+async function getEmployeeNames() {
 
   // get list of employees
   const response = await connection.query(`SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employee;`);
   const employeeArray = response.map(employee => {
     return {name : employee.name, value : employee.id};
   })
+
+  return employeeArray;
+}
+
+async function removeEmployee() {
+
+  const employeeArray = await getEmployeeNames();
 
   const employeeToRemove = await inquirer.prompt([
     {
@@ -212,12 +218,7 @@ async function removeEmployee() {
 
 async function updateRole() {
 
-  // get employee list
-  // DRY this up! it's the same as Remove Employee
-  const response = await connection.query(`SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employee;`);
-  const employeeArray = response.map(employee => {
-    return {name : employee.name, value : employee.id};
-  })
+  const employeeArray = await getEmployeeNames();
 
   const empToUpdate = await inquirer.prompt([
     {
