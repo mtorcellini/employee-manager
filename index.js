@@ -171,7 +171,7 @@ async function addEmployee() {
       name : 'manager',
       message : 'Select a manager: ',
       type : 'list',
-      choices : managerArray
+      choices : [...managerArray, {name : 'This employee is a manager', value : null}]
     }
   ])
 
