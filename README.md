@@ -25,4 +25,4 @@ DB_PW=[your SQL password]
 
 - Follow the onscreen prompts.
 
-![cli-screenshot](./cli-screenshot.png?raw=true)
+![cli-screenshot](./cliScreenshot.png?raw=true)
