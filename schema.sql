@@ -26,11 +26,11 @@ CREATE TABLE department (
 );
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES
-  ('Thimble', 'Cat', 2, null),
-  ('Loxely', 'Cat', 1, null),
+  ('Floofy', 'Cat', 2, null),
+  ('Hambone', 'Cat', 1, null),
   ('Francis', 'Willibald', 6, 5),
   ('Brometheus', 'the Excellent', 4, 2),
-  ('Allastor', 'Dog', 5, null),
+  ('Charlie', 'Unicorn', 5, null),
   ('Arthur', 'King', 3, 2),
   ('Tappy', 'Turtle', 7, 1);
 
